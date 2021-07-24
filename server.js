@@ -8,16 +8,16 @@ const bodyParser = require('body-parser');
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cors = require('cors'); 
+const cors = require('cors');
 
 // env 설정
-require("dotenv").config(); 
+require('dotenv').config();
 
 // proxy cors 설정
 let corsOptions = {
   origin: 'http://localhost:3000',
-  credentials: true
-}
+  credentials: true,
+};
 
 // Router 연결
 const indexRouter = require('./routes/index');
@@ -29,19 +29,19 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors(corsOptions)); 
+app.use(cors(corsOptions));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auctions', auctionRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -55,5 +55,5 @@ app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   // truffle_connect.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
 
-  console.log("Express Listening at http://localhost:" + port);
+  console.log('Express Listening at http://localhost:' + port);
 });
