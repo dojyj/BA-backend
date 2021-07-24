@@ -19,6 +19,13 @@ let corsOptions = {
   credentials: true,
 };
 
+// view 경로 설정
+app.set('views', __dirname + '/views');
+
+// 화면 engine을 ejs로 설정
+app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+
 // Router 연결
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/user/users');
@@ -48,7 +55,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error.html');
 });
 
 app.listen(port, () => {
