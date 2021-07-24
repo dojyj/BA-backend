@@ -1,0 +1,19 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true,
+    "mocha": true,
+    "truffle/globals": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "plugins": ["truffle", "prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  },
+  "ignorePatterns": ["node_modules/"]
+}

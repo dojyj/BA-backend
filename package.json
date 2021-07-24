@@ -23,8 +23,13 @@
     "cors": "^2.8.5",
     "css-loader": "^0.26.1",
     "debug": "^4.3.2",
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-truffle": "^0.3.1",
     "jest": "^27.0.6",
     "json-loader": "^0.5.4",
+    "prettier": "2.3.2",
     "style-loader": "^0.13.1",
     "truffle-contract": "^1.1.11",
     "web3": "^0.20.0"
