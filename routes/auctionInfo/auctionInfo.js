@@ -2,13 +2,13 @@ const express = require('express');
 const asyncify = require('express-asyncify');
 const asyncRouter = asyncify(express.Router());
 const multer = require('multer');
-const { path } = require('../../server');
+// const { path } = require('../../server');
 
 const {
   DB, //
   ERRORS, //
-  firebaseAdmin, //
-  tokenExporter, //
+  // firebaseAdmin, //
+  // tokenExporter, //
 } = require('../commons');
 
 const upload = multer({
