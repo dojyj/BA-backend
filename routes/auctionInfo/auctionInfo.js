@@ -45,7 +45,7 @@ asyncRouter.post('/detail', upload.any('img'), (req, res, next) => {
 });
 
 //Read All Auction List
-asyncRouter.post('/list', async (req, res, next) => {
+asyncRouter.get('/list', async (req, res, next) => {
   let auctionList = [];
 
   var auctionInfos = DB.auctionInfo.get().then((doc) => {
