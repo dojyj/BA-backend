@@ -5,10 +5,10 @@ const multer = require('multer');
 const { path } = require('../../server');
 
 const {
-  DB, //
-  ERRORS, //
-  firebaseAdmin, //
-  tokenExporter, //
+  DB,
+  ERRORS,
+  firebaseAdmin,
+  tokenExporter,
 } = require('../commons');
 
 const upload = multer({
@@ -22,36 +22,8 @@ const upload = multer({
   }),
 });
 
-asyncRouter.post('/upload', upload.any(), (req, res, next) => {
-  console.log(req.files);
-  console.log(req.body);
-});
-
-asyncRouter.post('/getauctionlist', async (req, res, next) => {
-  let list = [];
-  let each;
-
-  var docRef = DB.auctionInfo;
-  let getDoc = docRef
-    .get()
-    .then((doc) => {
-      doc.forEach((item) => {
-        console.log(item.data());
-        each = item.data();
-        each['_id'] = item.id;
-        list.push(each);
-      });
-      console.log(list);
-      res.status(200).send({ success: true, list });
-    })
-    .catch((err) => {
-      console.log('Error getting document', err);
-      return next(err);
-    });
-  console.log('done');
-});
-
-asyncRouter.post('/postauction', upload.any('img'), (req, res, next) => {
+//Create
+asyncRouter.post('/detail', upload.any('img'), (req, res, next) => {
   const body = JSON.parse(JSON.stringify(req.body));
 
   body.category = JSON.parse(body.category);
@@ -71,6 +43,86 @@ asyncRouter.post('/postauction', upload.any('img'), (req, res, next) => {
     res.status(200).end();
   }
 });
+
+//Read All Auction List
+asyncRouter.post('/list', async (req, res, next) => {
+  let auctionList = [];
+
+  var auctionInfos = DB.auctionInfo.get().then((doc) => {
+    doc.forEach((item) => {
+      var each = item.data();
+      each['_id'] = item.id;
+      auctionList.push(each);
+    });
+    res.status(200).send({ success: true, auctionList });
+  })
+  .catch((err) => {
+    console.log('Error getting document', err);
+    return next(err);
+  });
+});
+
+//Read Auction List Using user_id
+asyncRouter.get("/auction", async(req, res, next) => {
+  var uid = req.query.uid;
+  var auctionList = [];
+
+  try { // check userID exists
+    await firebaseAdmin.auth().getUser(uid);
+  } catch (err) {
+    return next(ERRORS_AUTH.NO_UID);
+  }
+  var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
+    doc.forEach((item) => {
+      if(item.data().sellerId === uid) {
+        each = item.data();
+        each['_id'] = item.id;
+        auctionList.push(each);
+      }
+    });
+    res.status(200).send({ success: true, auctionList });
+  })
+  .catch((err) => {
+    return next(err);
+  });
+});
+
+//Read Auction List Using category_id
+asyncRouter.get("/auction", async(req, res, next) => {
+  var categoryId = req.query.category_id;
+  var auctionList = [];
+
+  var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
+    doc.forEach((item) => {
+      if(item.data().categoryId === categoryId) {
+        each = item.data();
+        each['_id'] = item.id;
+        auctionList.push(each);
+      }
+    });
+    res.status(200).send({ success: true, auctionList });
+  })
+  .catch((err) => {
+    return next(err);
+  });
+});
+
+//Read Auction List Using auction_id
+
+//Update
+// asyncRouter.put("/auction", async(req, res, next) => {
+  
+//   try {
+
+//   } catch (err) {
+//     return next(ERRORs.ERRORS); // No Exist auctionList._id
+//   }
+
+// });
+
+
+
+//Delete
 
 asyncRouter.use((err, _req, res, _next) => {
   switch (err) {
