@@ -5,7 +5,8 @@
     "es2021": true,
     "mocha": true,
     "truffle/globals": true,
-    "node": true
+    "node": true,
+    "jest/globals": true
   },
   "parserOptions": {
     "ecmaVersion": 12

@@ -59,7 +59,7 @@ app.use(function (err, req, res, next) {
   res.render('error.html');
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   // truffle_connect.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
   var imgPath = './uploads';  //Create Img Upload File
@@ -68,3 +68,5 @@ app.listen(port, () => {
 
   console.log('Express Listening at http://localhost:' + port);
 });
+
+module.exports = server;
