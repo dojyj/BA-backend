@@ -55,8 +55,13 @@ asyncRouter.get('/list', async (req, res, next) => {
 
   var auctionInfos = DB.auctionInfo.get().then((doc) => {
     doc.forEach((item) => {
-      var each = item.data();
+      var each = {};
       each['_id'] = item.id;
+      each['info'] = item.data().info;
+      each['startDate'] = item.data().startDate;
+      each['endDate'] = item.data().endDate;
+      each['startPrice'] = item.data().startPrice;
+      each['status'] = item.data().status;
       auctionList.push(each);
     });
     res.status(200).send({ success: true, auctionList });
@@ -80,8 +85,13 @@ asyncRouter.get("/list", async(req, res, next) => {
   var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
     doc.forEach((item) => {
       if(item.data().sellerId === uid) {
-        each = item.data();
+        var each = {};
         each['_id'] = item.id;
+        each['info'] = item.data().info;
+        each['startDate'] = item.data().startDate;
+        each['endDate'] = item.data().endDate;
+        each['startPrice'] = item.data().startPrice;
+        each['status'] = item.data().status;
         auctionList.push(each);
       }
     });
@@ -100,8 +110,13 @@ asyncRouter.get("/list/category", async(req, res, next) => {
   var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
     doc.forEach((item) => {
       if(item.data().category.value === category) {
-        each = item.data();
+        var each = {};
         each['_id'] = item.id;
+        each['info'] = item.data().info;
+        each['startDate'] = item.data().startDate;
+        each['endDate'] = item.data().endDate;
+        each['startPrice'] = item.data().startPrice;
+        each['status'] = item.data().status;
         auctionList.push(each);
       }
     });
@@ -113,13 +128,13 @@ asyncRouter.get("/list/category", async(req, res, next) => {
 });
 
 //Read Auction List Using auction_id
-asyncRouter.get("/list/id", async(req, res, next) => {
+asyncRouter.get("/detail", async(req, res, next) => {
   var auctionId = req.query.auctionId;
   var auction = [];
 
   var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
     doc.forEach((item) => {
-      if(item.id === auctionId) {
+      if(item.id === auctionId) { // 모든 field  
         auction['_id'] = item.id;
         auction.push(item.data());
       }
