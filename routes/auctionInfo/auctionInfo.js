@@ -75,19 +75,16 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
 asyncRouter.get('/list', async (req, res, next) => {
   let auctionList = [];
 
-  var auctionInfos = DB.auctionInfo
-    .get()
-    .then((doc) => {
-      doc.forEach((item) => {
-        var each = item.data();
-        each['_id'] = item.id;
-        auctionList.push(each);
-      });
-      res.status(200).send({ success: true, auctionList });
-    })
-    .catch((err) => {
-      console.log('Error getting document', err);
-      return next(err);
+  var auctionInfos = DB.auctionInfo.get().then((doc) => {
+    doc.forEach((item) => {
+      var each = {};
+      each['_id'] = item.id;
+      each['info'] = item.data().info;
+      each['startDate'] = item.data().startDate;
+      each['endDate'] = item.data().endDate;
+      each['startPrice'] = item.data().startPrice;
+      each['status'] = item.data().status;
+      auctionList.push(each);
     });
 });
 
@@ -102,21 +99,18 @@ asyncRouter.get('/list', async (req, res, next) => {
   } catch (err) {
     return next(ERRORS_AUTH.NO_UID);
   }
-  var auctionInfo = await DB.auctionInfo
-    .get()
-    .then((doc) => {
-      // get auctionList
-      doc.forEach((item) => {
-        if (item.data().sellerId === uid) {
-          each = item.data();
-          each['_id'] = item.id;
-          auctionList.push(each);
-        }
-      });
-      res.status(200).send({ success: true, auctionList });
-    })
-    .catch((err) => {
-      return next(err);
+  var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
+    doc.forEach((item) => {
+      if(item.data().sellerId === uid) {
+        var each = {};
+        each['_id'] = item.id;
+        each['info'] = item.data().info;
+        each['startDate'] = item.data().startDate;
+        each['endDate'] = item.data().endDate;
+        each['startPrice'] = item.data().startPrice;
+        each['status'] = item.data().status;
+        auctionList.push(each);
+      }
     });
 });
 
@@ -125,43 +119,32 @@ asyncRouter.get('/list/category', async (req, res, next) => {
   var category = req.query.category;
   var auctionList = [];
 
-  var auctionInfo = await DB.auctionInfo
-    .get()
-    .then((doc) => {
-      // get auctionList
-      doc.forEach((item) => {
-        if (item.data().category.value === category) {
-          each = item.data();
-          each['_id'] = item.id;
-          auctionList.push(each);
-        }
-      });
-      res.status(200).send({ success: true, auctionList });
-    })
-    .catch((err) => {
-      return next(err);
+  var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
+    doc.forEach((item) => {
+      if(item.data().category.value === category) {
+        var each = {};
+        each['_id'] = item.id;
+        each['info'] = item.data().info;
+        each['startDate'] = item.data().startDate;
+        each['endDate'] = item.data().endDate;
+        each['startPrice'] = item.data().startPrice;
+        each['status'] = item.data().status;
+        auctionList.push(each);
+      }
     });
 });
 
 //Read Auction List Using auction_id
-asyncRouter.get('/list/id', async (req, res, next) => {
+asyncRouter.get("/detail", async(req, res, next) => {
   var auctionId = req.query.auctionId;
   var auction = [];
 
-  var auctionInfo = await DB.auctionInfo
-    .get()
-    .then((doc) => {
-      // get auctionList
-      doc.forEach((item) => {
-        if (item.id === auctionId) {
-          auction['_id'] = item.id;
-          auction.push(item.data());
-        }
-      });
-      res.status(200).send({ success: true, auction });
-    })
-    .catch((err) => {
-      return next(err);
+  var auctionInfo = await DB.auctionInfo.get().then((doc) => { // get auctionList
+    doc.forEach((item) => {
+      if(item.id === auctionId) { // 모든 field  
+        auction['_id'] = item.id;
+        auction.push(item.data());
+      }
     });
 });
 
