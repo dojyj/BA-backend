@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3333 || process.env.PORT;
 const Web3 = require('web3');
+const fs = require('fs');
 // const truffle_connect = require('./connection/app.js');
 
 const bodyParser = require('body-parser');
@@ -61,6 +62,9 @@ app.use(function (err, req, res, next) {
 const server = app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   // truffle_connect.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
+  var imgPath = './uploads';  //Create Img Upload File
+  if(!fs.existsSync(imgPath))
+    fs.mkdirSync(imgPath);
 
   console.log('Express Listening at http://localhost:' + port);
 });
