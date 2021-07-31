@@ -39,6 +39,12 @@ asyncRouter.post('/detail', upload.any('img'), (req, res, next) => {
   ) {
     return next(ERRORS.NOT_ALLOWED_DATAFORMAT);
   } else {
+    console.log(body);
+    body.view = parseInt(body.view);
+    body.wish = parseInt(body.wish);
+    body.reservedPrice = parseInt(body.reservedPrice);
+    body.startPrice = parseInt(body.startPrice);
+    body.sellingFailure = parseInt(body.sellingFailure);
     DB.auctionInfo.add(body);
     res.status(200).end();
   }
