@@ -39,7 +39,6 @@ asyncRouter.post('/detail', upload.any('img'), (req, res, next) => {
   ) {
     return next(ERRORS.NOT_ALLOWED_DATAFORMAT);
   } else {
-    console.log(body);
     body.view = parseInt(body.view);
     body.wish = parseInt(body.wish);
     body.reservedPrice = parseInt(body.reservedPrice);
@@ -150,39 +149,20 @@ asyncRouter.put('/detail', async (req, res, next) => {
 
   try {
     var auctionInfo = (await DB.auctionInfo.doc(body.id).get()).data();
-    await DB.auctionInfo.doc(body.id).update({
-      'category.label': body.hasOwnProperty('category.label')
-        ? body.category.label
-        : auctionInfo.category.label,
-      'category.value': body.hasOwnProperty('category.value')
-        ? body.category.value
-        : auctionInfo.value,
-      content: body.hasOwnProperty('content')
-        ? body.content
-        : auctionInfo.content,
-      startDate: body.hasOwnProperty('startDate')
-        ? body.startDate
-        : auctionInfo.startDate,
-      startDate: body.hasOwnProperty('startDate')
-        ? body.startDate
-        : auctionInfo.startDate,
-      endDate: body.hasOwnProperty('endDate')
-        ? body.endDate
-        : auctionInfo.endDate,
-      reservedPrice: body.hasOwnProperty('reservedPrice')
-        ? body.reservedPrice
-        : auctionInfo.reservedPrice,
-      sellerId: body.hasOwnProperty('sellerId')
-        ? body.sellerId
-        : auctionInfo.sellerId,
-      sellingFailure: body.hasOwnProperty('sellingFailure')
-        ? body.sellingFailure
-        : auctionInfo.sellingFailure,
-      state: body.hasOwnProperty('state') ? body.state : auctionInfo.state,
-      uploadTime: body.hasOwnProperty('uploadTime')
-        ? body.uploadTime
-        : auctionInfo.uploadTime,
-      view: body.hasOwnProperty('view') ? body.view : auctionInfo.view,
+ 
+      'category.label': body.hasOwnProperty('category.label') ? body.category.label : auctionInfo.category.label,
+      'category.value': body.hasOwnProperty('category.value') ? body.category.value : auctionInfo.value,
+      'content': body.hasOwnProperty('content')? body.content : auctionInfo.content,
+      'startDate': body.hasOwnProperty('startDate')? body.startDate : auctionInfo.startDate,
+      'startDate': body.hasOwnProperty('startDate')? body.startDate : auctionInfo.startDate,
+      'endDate': body.hasOwnProperty('endDate')? body.endDate : auctionInfo.endDate,
+      'reservedPrice': body.hasOwnProperty('reservedPrice')? parseInt(body.reservedPrice) : auctionInfo.reservedPrice,
+      'sellerId': body.hasOwnProperty('sellerId')? body.sellerId : auctionInfo.sellerId,
+      'sellingFailure': body.hasOwnProperty('sellingFailure')? parseInt(body.sellingFailure) : auctionInfo.sellingFailure,
+      'state': body.hasOwnProperty('state')? parseInt(body.state) : auctionInfo.state,
+      'uploadTime': body.hasOwnProperty('uploadTime')? body.uploadTime : auctionInfo.uploadTime,
+      'view': body.hasOwnProperty('view')? parseInt(body.view) : auctionInfo.view,
+      'wish': body.hasOwnProperty('wish')? parseInt(body.wish) : auctionInfo.wish,
     });
     res.status(200).send({ success: true });
   } catch (err) {
