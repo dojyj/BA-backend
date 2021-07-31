@@ -4,11 +4,26 @@ const asyncRouter = asyncify(express.Router());
 
 const { DB, ERRORS, firebaseAdmin, tokenExporter } = require('../commons');
 
-//구글 로그인 정보 DB 확인 메소드
-asyncRouter.post('/checkgoogleexist', async (req, res, next) => {
-  const {
-    body: { uid },
-  } = req;
+// GET :: /users/:id
+// user의 id를 받아 user정보 리턴
+asyncRouter.get('/:id', async (req, res, next) => {
+  const uid = req.params.id;
+
+  if (uid === undefined) return next(`NO UID ERROR`);
+
+  let user_info = await DB.users
+    .doc(uid)
+    .get()
+    .then((doc) => doc.data());
+
+  return res.status(200).json({ user_info });
+});
+
+// GET :: /users/google
+// 유저의 구글 로그인 정보가 firebase에 있는지 확인
+asyncRouter.get('/google/:id', async (req, res, next) => {
+  console.log('[...]check google information exists');
+  const uid = req.params.id;
   if (uid === undefined) return next(`NO UID ERROR`);
 
   return DB.users
@@ -16,16 +31,19 @@ asyncRouter.post('/checkgoogleexist', async (req, res, next) => {
     .get()
     .then(async (docSnapshot) => {
       if (docSnapshot.exists) {
+        console.log('[...]google account is exists!');
         return res.status(201).send({ result: 'success' });
       } else {
+        console.log("[...]google account isn't exists..");
         return res.status(200).send({ result: 'success' });
       }
     })
     .catch((err) => next(err.message));
 });
 
-// 회원가입
-asyncRouter.post('/signup', async (req, res, next) => {
+// POST :: /users
+// 유저 회원가입
+asyncRouter.post('/', async (req, res, next) => {
   const { body } = req;
 
   if (
@@ -76,7 +94,7 @@ asyncRouter.post('/signup', async (req, res, next) => {
   }
 });
 
-asyncRouter.use((err, _req, res, _next) => {
+asyncRouter.use((err, _req, res) => {
   switch (err) {
     case ERRORS.DATA.INVALID_DATA:
       res.status(400).send({ error: 'Invalid data' });
