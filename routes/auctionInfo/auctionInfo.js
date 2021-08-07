@@ -60,14 +60,17 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
     return next(ERRORS.DATA.NOT_ALLOWED_DATAFORMAT);
   } else {
     body.category = JSON.parse(body.category);
-    body.productImageURL = req.files;
+    if(req.files != null)
+      body.productImageURL = req.files;
     body.view = parseInt(body.view);
     body.wish = parseInt(body.wish);
     body.reservedPrice = parseInt(body.reservedPrice);
     body.startPrice = parseInt(body.startPrice);
     body.sellingFailure = parseInt(body.sellingFailure);
-    DB.auctionInfo.add(body);
-    res.status(200).end();
+    DB.auctionInfo.add(body).then((docRef) => {
+      res.status(200).send({success: true, id: docRef.id});
+    });
+    
   }
 });
 
@@ -177,7 +180,7 @@ asyncRouter.put('/detail', async (req, res, next) => {
         : auctionInfo.category.label,
       'category.value': body.hasOwnProperty('category.value')
         ? body.category.value
-        : auctionInfo.value,
+        : auctionInfo.category.value,
       content: body.hasOwnProperty('content')
         ? body.content
         : auctionInfo.content,
