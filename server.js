@@ -31,6 +31,7 @@ app.engine('html', require('ejs').renderFile);
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/user/users');
 const auctionRouter = require('./routes/auctionInfo/auctionInfo');
+const userauctioninfoRouter = require('./routes/userAuctionInfo/userAuctionInfo');
 
 // middleware
 app.use(logger('dev'));
@@ -42,6 +43,7 @@ app.use(cors(corsOptions));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auctions', auctionRouter);
+app.use('/userauctioninfo', userauctioninfoRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
