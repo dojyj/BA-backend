@@ -78,6 +78,8 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
 //Read All Auction List
 asyncRouter.get('/list', async (req, res, next) => {
   let auctionList = [];
+  var cnt=req.query.cnt;
+  console.log(cnt);
 
   var auctionInfos = DB.auctionInfo
     .get()
@@ -127,7 +129,9 @@ asyncRouter.get('/list', async (req, res, next) => {
 //Read Auction List Using category_name
 asyncRouter.get('/list/category', async (req, res, next) => {
   var category = req.query.category;
+  var cnt=req.query.cnt;
   var auctionList = [];
+  console.log(req.query);
 
   var auctionInfo = await DB.auctionInfo
     .get()
@@ -238,6 +242,7 @@ asyncRouter.delete('/detail/:id', async (req, res, next) => {
   }
 });
 
+
 asyncRouter.use((err, _req, res, _next) => {
   switch (err) {
     case ERRORS.DATA.NOT_ALLOWED_DATAFORMAT:
@@ -254,5 +259,6 @@ asyncRouter.use((err, _req, res, _next) => {
       break;
   }
 });
+
 
 module.exports = asyncRouter;
