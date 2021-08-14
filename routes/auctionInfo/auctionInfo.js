@@ -11,7 +11,7 @@ const { promisify } = require('util');
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'uploads/');
+      cb(null, 'public/uploads/');
     },
     filename: (req, file, cb) => {
       cb(null, `${Date.now()}_${file.originalname}`);
@@ -143,21 +143,23 @@ asyncRouter.get('/list/category', async (req, res, next) => {
     });
 });
 
-//Read Auction List Using auction_id
-asyncRouter.get('/list/id', async (req, res, next) => {
-  var auctionId = req.query.auctionId;
-  var auction = [];
-
+//Get Only One Auction that equals to route params id
+asyncRouter.get('/list/:id', async (req, res, next) => {
+  var auctionId = req.params.id;
+  let auction;
   var auctionInfo = await DB.auctionInfo
     .get()
-    .then((doc) => {
-      // get auctionList
-      doc.forEach((item) => {
-        if (item.id === auctionId) {
-          auction['_id'] = item.id;
-          auction.push(item.data());
-        }
-      });
+    .then((querySnapshot) => {
+      // #1 get auction
+      for (let i in querySnapshot.docs) {
+        const item = querySnapshot.docs[i];
+        console.log(item);
+        if (auctionId === item.id) auction = item.data();
+      }
+
+      // #2 if auction doesn't exists..
+      if (!auction) return next(ERRORS.DATA.NOT_EXISTS);
+
       res.status(200).send({ success: true, auction });
     })
     .catch((err) => {
@@ -237,6 +239,10 @@ asyncRouter.use((err, _req, res, _next) => {
     case ERRORS.DATA.NOT_ALLOWED_DATAFORMAT:
       console.log('NOT ALLOWED DATA FORMAT: ', err);
       res.status(400).send({ error: 'Invalid data' });
+      break;
+    case ERRORS.DATA.NOT_EXISTS:
+      console.log('DATA NOT EXISTS: ', err);
+      res.status(400).send({ error: 'This auction no longer exists..' });
       break;
     default:
       console.log('UNHANDLED INTERNAL ERROR: ', err);
