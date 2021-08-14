@@ -39,12 +39,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(express.static('public')); // public 폴더를 웹브라우저 요청에 따라 제공
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auctions', auctionRouter);
 app.use('/userauctioninfo', userauctioninfoRouter);
+
+app.disable('etag');
+const options = { etag: false };
+app.use(express.static('public', options)); // public 폴더를 웹브라우저 요청에 따라 제공
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
