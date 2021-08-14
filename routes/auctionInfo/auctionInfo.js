@@ -8,6 +8,7 @@ const fs = require('fs');
 const { DB, ERRORS, firebaseAdmin, tokenExporter } = require('../commons');
 const { promisify } = require('util');
 
+//upload img
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
@@ -60,20 +61,25 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
     return next(ERRORS.DATA.NOT_ALLOWED_DATAFORMAT);
   } else {
     body.category = JSON.parse(body.category);
-    body.productImageURL = req.files;
+    if(req.files != null)
+      body.productImageURL = req.files;
     body.view = parseInt(body.view);
     body.wish = parseInt(body.wish);
     body.reservedPrice = parseInt(body.reservedPrice);
     body.startPrice = parseInt(body.startPrice);
     body.sellingFailure = parseInt(body.sellingFailure);
-    DB.auctionInfo.add(body);
-    res.status(200).end();
+    DB.auctionInfo.add(body).then((docRef) => {
+      res.status(200).send({success: true, id: docRef.id});
+    });
+    
   }
 });
 
 //Read All Auction List
 asyncRouter.get('/list', async (req, res, next) => {
   let auctionList = [];
+  var cnt=req.query.cnt;
+  console.log(cnt);
 
   var auctionInfos = DB.auctionInfo
     .get()
@@ -123,7 +129,9 @@ asyncRouter.get('/list', async (req, res, next) => {
 //Read Auction List Using category_name
 asyncRouter.get('/list/category', async (req, res, next) => {
   var category = req.query.category;
+  var cnt=req.query.cnt;
   var auctionList = [];
+  console.log(req.query);
 
   var auctionInfo = await DB.auctionInfo
     .get()
@@ -179,7 +187,7 @@ asyncRouter.put('/detail', async (req, res, next) => {
         : auctionInfo.category.label,
       'category.value': body.hasOwnProperty('category.value')
         ? body.category.value
-        : auctionInfo.value,
+        : auctionInfo.category.value,
       content: body.hasOwnProperty('content')
         ? body.content
         : auctionInfo.content,
@@ -234,6 +242,7 @@ asyncRouter.delete('/detail/:id', async (req, res, next) => {
   }
 });
 
+
 asyncRouter.use((err, _req, res, _next) => {
   switch (err) {
     case ERRORS.DATA.NOT_ALLOWED_DATAFORMAT:
@@ -250,5 +259,6 @@ asyncRouter.use((err, _req, res, _next) => {
       break;
   }
 });
+
 
 module.exports = asyncRouter;

@@ -1,7 +1,7 @@
 const express = require('express');
 const asyncify = require('express-asyncify');
 const asyncRouter = asyncify(express.Router());
-
+//test
 const { DB, ERRORS, firebaseAdmin, tokenExporter } = require('../commons');
 
 // GET :: /users/:id
@@ -23,7 +23,7 @@ asyncRouter.get('/:id', async (req, res, next) => {
 // 유저의 구글 로그인 정보가 firebase에 있는지 확인
 asyncRouter.get('/google/:id', async (req, res, next) => {
   console.log('[...]check google information exists');
-  const uid = req.params.id;
+  const uid = await req.params.id;
   if (uid === undefined) return next(`NO UID ERROR`);
 
   return DB.users
