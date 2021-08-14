@@ -8,6 +8,7 @@ const fs = require('fs');
 const { DB, ERRORS, firebaseAdmin, tokenExporter } = require('../commons');
 const { promisify } = require('util');
 
+//upload img
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
