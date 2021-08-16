@@ -27,6 +27,9 @@ const firestore = firebaseAdmin.firestore;
 const DB = {
   users: firestore().collection('users'),
   auctionInfo: firestore().collection('auctionInfo'),
+  messageInfo: firestore().collection('chatting'),
+  jwtest: firestore().collection('jwtest'),
+  
 };
 
 const tokenExporter = (headers) => {
