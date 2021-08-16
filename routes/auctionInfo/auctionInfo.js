@@ -75,6 +75,8 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
 
 //Read All Auction List
 asyncRouter.get('/list', async (req, res, next) => {
+  console.log('Error getting document');
+
   let auctionList = [];
   var cnt = req.query.cnt;
   console.log(cnt);
