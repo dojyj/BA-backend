@@ -32,27 +32,27 @@ describe('AuctionInfo Api Test', () => {
     })
 
     test('Get All AuctionInfoList', async() => {
-        const url = baseUrl + '/list';
+        const url = baseUrl + '/list/1';
         const response = await request(server).get(url);
         expect(response.statusCode).toBe(200);
     });
 
     test('Get AuctionInfo using user_id', async() => {
-        const url = baseUrl + '/list?uid=' +userId;
+        const url = baseUrl + '/list/' + userId + '/1';
         const response = await request(server).get(url);
         expect(response.statusCode).toBe(200);
     });
 
     test('Get AuctionInfoList using category_name', async() => {
        for(const category in categories) {
-            const url = baseUrl + '/list/category?category=' + category;
+            const url = baseUrl + '/list/category/' + category + '/1';
             const response = await request(server).get(url);
             expect(response.statusCode).toBe(200);
         };
     });
 
     test('Get AuctionInfo using auction_id', async() => {
-        const url = baseUrl + '/list/id?auctionId=' + auctionId;
+        const url = baseUrl + '/detail/' + auctionId;
         const response = await request(server).get(url);
         expect(response.statusCode).toBe(200);
     });
