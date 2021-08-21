@@ -60,15 +60,14 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
     return next(ERRORS.DATA.NOT_ALLOWED_DATAFORMAT);
   } else {
     body.category = JSON.parse(body.category);
-    if(req.files != null)
-      body.productImageURL = req.files;
+    if (req.files != null) body.productImageURL = req.files;
     body.view = parseInt(body.view);
     body.wish = parseInt(body.wish);
     body.reservedPrice = parseInt(body.reservedPrice);
     body.startPrice = parseInt(body.startPrice);
     body.sellingFailure = parseInt(body.sellingFailure);
     DB.auctionInfo.add(body).then((docRef) => {
-      res.status(200).send({success: true, id: docRef.id});
+      res.status(200).send({ success: true, id: docRef.id });
     });
   }
 });
@@ -187,6 +186,7 @@ asyncRouter.get('/list/category/:label/:page', async (req, res, next) => {
   var category = req.params.label;
   var pageNumber = req.params.page;
   var pageCnt = 3; // total auctionList cnt
+
   var auctionList = [];
 
   var first = DB.auctionInfo.where('category.value', '==', category).limit(pageNumber*pageCnt);
@@ -324,7 +324,6 @@ asyncRouter.delete('/detail/:id', async (req, res, next) => {
   }
 });
 
-
 asyncRouter.use((err, _req, res, _next) => {
   switch (err) {
     case ERRORS.DATA.NOT_ALLOWED_DATAFORMAT:
@@ -341,6 +340,5 @@ asyncRouter.use((err, _req, res, _next) => {
       break;
   }
 });
-
 
 module.exports = asyncRouter;

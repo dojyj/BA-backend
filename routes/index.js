@@ -6,4 +6,9 @@ router.get('/', function (req, res, next) {
   res.render('index.html');
 });
 
+router.get('/jiwon', function (req, res, next) {
+  res.render('index.html');
+  console.log("jssss")
+});
+
 module.exports = router;
