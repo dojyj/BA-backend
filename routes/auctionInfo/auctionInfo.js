@@ -72,13 +72,15 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
   }
 });
 
-//Read All Auction List
+//Read All Auction List === 이거 지우면 되나?? 
+
 asyncRouter.get('/list/:page', async (req, res, next) => {
   var auctionList = [];
   var pageNumber = req.params.page; // (더보기)click cnt
   var pageCnt = 3; // total auctionList cnt
 
   var first = DB.auctionInfo.orderBy('startDate').limit(pageNumber*pageCnt);
+//>>>>>>> master
 
   first.get().then((doc) => {
     if(pageNumber == 1) { // page number is 1

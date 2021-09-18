@@ -3,6 +3,7 @@ const { DB, firebaseAdmin, ERRORS, tokenExporter } = require('../commons');
 var express = require('express');
 var router = express();
 
+//http://localhost:3333/messageInfo/message
 router.get('/message', async (req, res, next) => {
     console.log("message 가 왔습니다. ");
 
@@ -11,7 +12,11 @@ router.get('/message', async (req, res, next) => {
 });
 module.exports = router;
 
-  /*
+
+  /*d
+var msgData = {
+    
+}
     DB.messageInfo.doc("msg")
     .withConverter(messageConverter)
     .set(new Message("a","b","c","d"));
@@ -45,7 +50,7 @@ router.get('/message', async (req, res, next) => {
 
 module.exports = router;
 
-
+*/
 
 class Message {
     constructor (userId, receiverId, content, sendTm) {
@@ -74,4 +79,3 @@ var messageConverter = {
         return new City(data.name, data.state, data.country);
     }
 };
-*/
