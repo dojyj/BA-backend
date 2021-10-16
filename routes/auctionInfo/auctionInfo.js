@@ -40,11 +40,261 @@ const upload = multer({
 
 const unlinkAsync = promisify(fs.unlink);
 
-//Create New Auction Item
+const getPriceUnit = (price) => {
+  let unit = String(parseInt(price * 0.05));
+  if (parseInt(unit[0]) < 5) unit = '1'.padEnd(unit.length, '0');
+  else unit = '5'.padEnd(unit.length, '0');
+
+  return parseInt(unit);
+};
+
+//Read All Auction List === 이거 지우면 되나??
+
+asyncRouter.get('/list/:page', async (req, res, next) => {
+  var auctionList = [];
+  var pageNumber = req.params.page; // (더보기)click cnt
+  var pageCnt = 3; // total auctionList cnt
+
+  var first = DB.auctionInfo.orderBy('startDate').limit(pageNumber * pageCnt);
+  //>>>>>>> master
+
+  first
+    .get()
+    .then((doc) => {
+      if (pageNumber == 1) {
+        // page number is 1
+        doc.forEach((item) => {
+          if (item != undefined) {
+            var each = {};
+            each['_id'] = item.id;
+            each['startDate'] = item.data().startDate;
+            each['endDate'] = item.data().endDate;
+            each['state'] = item.data().state;
+            each['title'] = item.data().title;
+            each['startPrice'] = item.data().startPrice;
+            auctionList.push(each);
+          }
+        });
+        res.status(200).send({ success: true, auctionList });
+      } else {
+        var lastVisible = doc.docs[doc.docs.length - 1];
+        var next = DB.auctionInfo
+          .orderBy('startDate')
+          .startAfter(lastVisible)
+          .limit(pageCnt)
+          .get()
+          .then((document) => {
+            document.forEach((item) => {
+              if (item != undefined) {
+                var each = {};
+                each['_id'] = item.id;
+                each['startDate'] = item.data().startDate;
+                each['endDate'] = item.data().endDate;
+                each['state'] = item.data().state;
+                each['title'] = item.data().title;
+                each['startPrice'] = item.data().startPrice;
+                auctionList.push(each);
+              }
+            });
+            res.status(200).send({ success: true, auctionList });
+          });
+      }
+    })
+    .catch((err) => {
+      console.log('Error getting document', err);
+      return next(err);
+    });
+});
+
+//Read Auction List Using user_id
+asyncRouter.get('/list/:id/:page', async (req, res, next) => {
+  var uid = req.params.id;
+  var auctionList = [];
+  var pageNumber = req.params.page; // page number
+  var pageCnt = 3; // total auctionList cnt
+
+  try {
+    // check userID exists
+    await firebaseAdmin.auth().getUser(uid);
+  } catch (err) {
+    return next(ERRORS_AUTH.NO_UID);
+  }
+
+  var first = DB.auctionInfo
+    .where('sellerId', '==', uid)
+    .limit(pageNumber * pageCnt);
+
+  first
+    .get()
+    .then((doc) => {
+      if (pageNumber == 1) {
+        // page number is 1
+        doc.forEach((item) => {
+          if (item != undefined) {
+            var each = {};
+            each['_id'] = item.id;
+            each['startDate'] = item.data().startDate;
+            each['endDate'] = item.data().endDate;
+            each['state'] = item.data().state;
+            each['title'] = item.data().title;
+            each['startPrice'] = item.data().startPrice;
+            auctionList.push(each);
+          }
+        });
+        res.status(200).send({ success: true, auctionList });
+      } else {
+        var lastVisible = doc.docs[doc.docs.length - 1];
+        var next = DB.auctionInfo
+          .where('sellerId', '==', uid)
+          .startAfter(lastVisible)
+          .limit(pageCnt)
+          .get()
+          .then((document) => {
+            document.forEach((item) => {
+              if (item != undefined) {
+                var each = {};
+                each['_id'] = item.id;
+                each['startDate'] = item.data().startDate;
+                each['endDate'] = item.data().endDate;
+                each['state'] = item.data().state;
+                each['title'] = item.data().title;
+                each['startPrice'] = item.data().startPrice;
+                auctionList.push(each);
+              }
+            });
+            res.status(200).send({ success: true, auctionList });
+          });
+      }
+    })
+    .catch((err) => {
+      return next(err);
+    });
+});
+
+//Read Auction List Using category_name
+asyncRouter.get('/list/category/:label/:page', async (req, res, next) => {
+  var category = req.params.label;
+  var pageNumber = req.params.page;
+  var pageCnt = 3; // total auctionList cnt
+
+  var auctionList = [];
+
+  var first = DB.auctionInfo
+    .where('category.value', '==', category)
+    .limit(pageNumber * pageCnt);
+
+  first
+    .get()
+    .then((doc) => {
+      if (pageNumber == 1) {
+        // page number is 1
+        doc.forEach((item) => {
+          if (item != undefined) {
+            var each = {};
+            each['_id'] = item.id;
+            each['startDate'] = item.data().startDate;
+            each['endDate'] = item.data().endDate;
+            each['state'] = item.data().state;
+            each['title'] = item.data().title;
+            each['startPrice'] = item.data().startPrice;
+            auctionList.push(each);
+          }
+        });
+        res.status(200).send({ success: true, auctionList });
+      } else {
+        // page number >= 2
+        var lastVisible = doc.docs[doc.docs.length - 1];
+        var next = DB.auctionInfo
+          .where('category.value', '==', category)
+          .startAfter(lastVisible)
+          .limit(pageCnt)
+          .get()
+          .then((document) => {
+            document.forEach((item) => {
+              if (item != undefined) {
+                var each = {};
+                each['_id'] = item.id;
+                each['startDate'] = item.data().startDate;
+                each['endDate'] = item.data().endDate;
+                each['state'] = item.data().state;
+                each['title'] = item.data().title;
+                each['startPrice'] = item.data().startPrice;
+                auctionList.push(each);
+              }
+            });
+            res.status(200).send({ success: true, auctionList });
+          });
+      }
+    })
+    .catch((err) => {
+      return next(err);
+    });
+});
+
+// Auction Progress GET
+asyncRouter.get('/progress/:id', async (req, res, next) => {
+  const progressId = req.params.id;
+  let progressInfo;
+
+  await DB.progressInfo
+    .get()
+    .then((querySnapshot) => {
+      for (let info of querySnapshot.docs) {
+        if (progressId == info.id) progressInfo = info.data();
+      }
+
+      if (!progressInfo) return next(ERRORS.PROGRESS.NOT_EXISTS);
+
+      res.status(200).send({ success: true, progressInfo });
+    })
+    .catch((err) => {
+      return next(err);
+    });
+});
+
+// Auction Progress POST
+const postAuctionProgress = async (price) => {
+  const progressInfo = {};
+
+  progressInfo.price = price;
+  progressInfo.priceUnit = getPriceUnit(progressInfo.price);
+  progressInfo.availableUsers = [];
+  const progressDoc = await DB.progressInfo.add(progressInfo);
+
+  return progressDoc;
+};
+
+// Auction Details GET
+asyncRouter.get('/detail/:id', async (req, res, next) => {
+  var auctionId = req.params.id;
+  var auction;
+  var auctionInfo = await DB.auctionInfo
+    .get()
+    .then((querySnapshot) => {
+      console.log(querySnapshot);
+      // #1 get auction
+      for (var i in querySnapshot.docs) {
+        const item = querySnapshot.docs[i];
+        // console.log(item);
+        if (auctionId === item.id) auction = item.data();
+      }
+
+      // #2 if auction doesn't exists..
+      if (!auction) return next(ERRORS.DATA.NOT_EXISTS);
+
+      res.status(200).send({ success: true, auction });
+    })
+    .catch((err) => {
+      return next(err);
+    });
+});
+
+// Auction Details POST
 asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
   const body = JSON.parse(JSON.stringify(req.body));
 
-  if ( // Check Auction Item Format
+  if (
+    // Check Auction Item Format
     body.title === '' ||
     body.startprice === '' ||
     parseInt(body.startprice) > parseInt(body.reservedprice) ||
@@ -66,200 +316,18 @@ asyncRouter.post('/detail', upload.any('img'), async (req, res, next) => {
     body.reservedPrice = parseInt(body.reservedPrice);
     body.startPrice = parseInt(body.startPrice);
     body.sellingFailure = parseInt(body.sellingFailure);
+
+    // create progressInfo DB
+    const progressDoc = await postAuctionProgress(body.startPrice);
+    body.progressInfo = progressDoc.id;
+
     DB.auctionInfo.add(body).then((docRef) => {
       res.status(200).send({ success: true, id: docRef.id });
     });
   }
 });
 
-//Read All Auction List === 이거 지우면 되나?? 
-
-asyncRouter.get('/list/:page', async (req, res, next) => {
-  var auctionList = [];
-  var pageNumber = req.params.page; // (더보기)click cnt
-  var pageCnt = 3; // total auctionList cnt
-
-  var first = DB.auctionInfo.orderBy('startDate').limit(pageNumber*pageCnt);
-//>>>>>>> master
-
-  first.get().then((doc) => {
-    if(pageNumber == 1) { // page number is 1
-      doc.forEach((item) => {
-        if(item != undefined) {
-          var each = {};
-          each['_id'] = item.id;
-          each['startDate'] = item.data().startDate;
-          each['endDate'] = item.data().endDate;
-          each['state'] = item.data().state;
-          each['title'] = item.data().title;
-          each['startPrice'] = item.data().startPrice;
-          auctionList.push(each);
-        }
-      });
-      res.status(200).send({ success: true, auctionList });
-    }
-    else {
-      var lastVisible = doc.docs[doc.docs.length -1];
-      var next = DB.auctionInfo.orderBy('startDate').startAfter(lastVisible).limit(pageCnt)
-        .get()
-        .then((document) => {
-            document.forEach((item) => {
-            if(item != undefined) {
-              var each = {};
-              each['_id'] = item.id;
-              each['startDate'] = item.data().startDate;
-              each['endDate'] = item.data().endDate;
-              each['state'] = item.data().state;
-              each['title'] = item.data().title;
-              each['startPrice'] = item.data().startPrice;
-              auctionList.push(each);
-            }
-          });
-        res.status(200).send({ success: true, auctionList });
-      })
-    } 
-  })  
-  .catch((err) => {
-    console.log('Error getting document', err);
-    return next(err);
-  });
-});
-
-//Read Auction List Using user_id
-asyncRouter.get('/list/:id/:page', async (req, res, next) => {
-  var uid = req.params.id;
-  var auctionList = [];
-  var pageNumber = req.params.page; // page number
-  var pageCnt = 3; // total auctionList cnt
-
-  try {
-    // check userID exists
-    await firebaseAdmin.auth().getUser(uid);
-  } catch (err) {
-    return next(ERRORS_AUTH.NO_UID);
-  }
-
-  var first = DB.auctionInfo.where('sellerId', '==', uid).limit(pageNumber*pageCnt);
-
-  first.get().then((doc) => {
-    if(pageNumber == 1) { // page number is 1
-      doc.forEach((item) => {
-        if(item != undefined) {
-          var each = {};
-          each['_id'] = item.id;
-          each['startDate'] = item.data().startDate;
-          each['endDate'] = item.data().endDate;
-          each['state'] = item.data().state;
-          each['title'] = item.data().title;
-          each['startPrice'] = item.data().startPrice;
-          auctionList.push(each);
-        }
-      });
-      res.status(200).send({ success: true, auctionList });
-    }
-    else {
-      var lastVisible = doc.docs[doc.docs.length -1];
-      var next = DB.auctionInfo.where('sellerId', '==', uid).startAfter(lastVisible).limit(pageCnt)
-        .get()
-        .then((document) => {
-            document.forEach((item) => {
-            if(item != undefined) {
-              var each = {};
-              each['_id'] = item.id;
-              each['startDate'] = item.data().startDate;
-              each['endDate'] = item.data().endDate;
-              each['state'] = item.data().state;
-              each['title'] = item.data().title;
-              each['startPrice'] = item.data().startPrice;
-              auctionList.push(each);
-            }
-          });
-        res.status(200).send({ success: true, auctionList });
-      })
-    }
-  }) 
-  .catch((err) => {
-    return next(err);
-  });
-});
-
-//Read Auction List Using category_name
-asyncRouter.get('/list/category/:label/:page', async (req, res, next) => {
-  var category = req.params.label;
-  var pageNumber = req.params.page;
-  var pageCnt = 3; // total auctionList cnt
-
-  var auctionList = [];
-
-  var first = DB.auctionInfo.where('category.value', '==', category).limit(pageNumber*pageCnt);
-
-  first.get().then((doc) => {
-    if(pageNumber == 1) { // page number is 1
-      doc.forEach((item) => {
-        if(item != undefined) {
-          var each = {};
-          each['_id'] = item.id;
-          each['startDate'] = item.data().startDate;
-          each['endDate'] = item.data().endDate;
-          each['state'] = item.data().state;
-          each['title'] = item.data().title;
-          each['startPrice'] = item.data().startPrice;
-          auctionList.push(each);
-        }
-      });
-      res.status(200).send({ success: true, auctionList });
-    }
-    else { // page number >= 2
-      var lastVisible = doc.docs[doc.docs.length -1];
-      var next = DB.auctionInfo.where('category.value', '==', category).startAfter(lastVisible).limit(pageCnt)
-        .get()
-        .then((document) => {
-            document.forEach((item) => {
-            if(item != undefined) {
-              var each = {};
-              each['_id'] = item.id;
-              each['startDate'] = item.data().startDate;
-              each['endDate'] = item.data().endDate;
-              each['state'] = item.data().state;
-              each['title'] = item.data().title;
-              each['startPrice'] = item.data().startPrice;
-              auctionList.push(each);
-            }
-          });
-        res.status(200).send({ success: true, auctionList });
-      })
-    }
-  })  
-  .catch((err) => {
-    return next(err);
-  });
-});
-
-// Get Only One Auction that equals to route params id
-asyncRouter.get('/detail/:id', async (req, res, next) => {
-  var auctionId = req.params.id;
-  var auction;
-  var auctionInfo = await DB.auctionInfo
-    .get()
-    .then((querySnapshot) => {
-      // #1 get auction
-      for (var i in querySnapshot.docs) {
-        const item = querySnapshot.docs[i];
-        // console.log(item);
-        if (auctionId === item.id) auction = item.data();
-      }
-
-      // #2 if auction doesn't exists..
-      if (!auction) return next(ERRORS.DATA.NOT_EXISTS);
-
-      res.status(200).send({ success: true, auction });
-    })
-    .catch((err) => {
-      return next(err);
-    });
-});
-
-//Update
+// Auction Details PUT
 asyncRouter.put('/detail', async (req, res, next) => {
   const body = JSON.parse(JSON.stringify(req.body));
 
@@ -313,7 +381,7 @@ asyncRouter.put('/detail', async (req, res, next) => {
   }
 });
 
-//Delete
+// Auction Details DELETE
 asyncRouter.delete('/detail/:id', async (req, res, next) => {
   var auctionId = req.params.id;
 
@@ -336,6 +404,11 @@ asyncRouter.use((err, _req, res, _next) => {
       console.log('DATA NOT EXISTS: ', err);
       res.status(400).send({ error: 'This auction no longer exists..' });
       break;
+    case ERRORS.PROGRESS.NOT_EXISTS:
+      console.log('DATA NOT EXISTS: ', err);
+      res
+        .status(400)
+        .send({ error: 'This auction progress is not exits now..' });
     default:
       console.log('UNHANDLED INTERNAL ERROR: ', err);
       res.status(500).send({ error: 'INTERNAL ERROR' });
