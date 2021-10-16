@@ -15,6 +15,10 @@ const ERRORS = {
   DATA: {
     INVALID_DATA: 'INVALID_DATA',
     NOT_ALLOWED_DATAFORMAT: 'NOT_ALLOWED_DATAFORMAT',
+    NOT_EXISTS: 'NOT_EXISTS',
+  },
+  PROGRESS: {
+    NOT_EXISTS: 'NOT_EXISTS',
   },
 };
 
@@ -27,7 +31,8 @@ const firestore = firebaseAdmin.firestore;
 const DB = {
   users: firestore().collection('users'),
   auctionInfo: firestore().collection('auctionInfo'),
-  messageInfo: firestore().collection('chatting'),  
+  progressInfo: firestore().collection('progressInfo'),
+  messageInfo: firestore().collection('chatting'),
 };
 
 const tokenExporter = (headers) => {
