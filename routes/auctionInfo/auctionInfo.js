@@ -197,6 +197,9 @@ asyncRouter.get('/list/category/:label/:page', async (req, res, next) => {
             each['state'] = item.data().state;
             each['title'] = item.data().title;
             each['startPrice'] = item.data().startPrice;
+            each['img'] = item.data().productImageURL;
+            each['view'] = item.data().view;
+            each['wish'] = item.data().wish;
             auctionList.push(each);
           }
         });
@@ -219,6 +222,8 @@ asyncRouter.get('/list/category/:label/:page', async (req, res, next) => {
                 each['state'] = item.data().state;
                 each['title'] = item.data().title;
                 each['startPrice'] = item.data().startPrice;
+                each['imgPath'] = item.data().productImageURL;
+                each['wish'] = item.data().wish;
                 auctionList.push(each);
               }
             });
