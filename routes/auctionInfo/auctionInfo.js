@@ -6,6 +6,7 @@ const fs = require('fs');
 
 const { DB, ERRORS, firebaseAdmin, tokenExporter } = require('../commons');
 const { promisify } = require('util');
+const ethValue = 5000000;
 
 //upload img
 const upload = multer({
@@ -257,13 +258,59 @@ asyncRouter.get('/progress/:id', async (req, res, next) => {
     });
 });
 
+// Auction Progress PATCH (User, Price, PriceUnit)
+asyncRouter.patch('/progress/:id', async (req, res, next) => {
+  const progressId = req.params.id;
+  const body = JSON.parse(JSON.stringify(req.body));
+  var highest_price = body.Price;
+
+  try {
+    var request_list = (await DB.progressInfo.doc(progressId).get()).data();
+
+    for (let request of request_list.requestList) {
+      console.log(request);
+      if (request.UID === body.UID && request.Price === body.Price) {
+        return next(ERRORS.PROGRESS.DUP_REQUESTS);
+      }
+
+      if (highest_price <= request.Price)
+        return next(ERRORS.PROGRESS.INVALID_REQUESTS);
+    }
+
+    if (
+      (highest_price * ethValue - request_list.price) %
+        request_list.priceUnit !=
+      0
+    )
+      return next(ERRORS.PROGRESS.INVALID_REQUESTS);
+
+    // update progress info
+    const list = request_list.requestList;
+    list.push(body);
+    const price = highest_price * ethValue;
+    const priceUnit = getPriceUnit(price);
+
+    await DB.progressInfo.doc(progressId).update({
+      requestList: list,
+      price: price,
+      priceUnit: priceUnit,
+    });
+
+    res.status(200).send({ success: true });
+  } catch (err) {
+    console.log(err);
+    return next(ERRORS.ERRORS);
+  }
+});
+
 // Auction Progress POST
 const postAuctionProgress = async (price) => {
   const progressInfo = {};
 
   progressInfo.price = price;
   progressInfo.priceUnit = getPriceUnit(progressInfo.price);
-  progressInfo.availableUsers = [];
+  progressInfo.requestList = [];
+
   const progressDoc = await DB.progressInfo.add(progressInfo);
 
   return progressDoc;
@@ -399,6 +446,7 @@ asyncRouter.delete('/detail/:id', async (req, res, next) => {
   }
 });
 
+// Auction API ERRORS
 asyncRouter.use((err, _req, res, _next) => {
   switch (err) {
     case ERRORS.DATA.NOT_ALLOWED_DATAFORMAT:
@@ -414,6 +462,15 @@ asyncRouter.use((err, _req, res, _next) => {
       res
         .status(400)
         .send({ error: 'This auction progress is not exits now..' });
+      break;
+    case ERRORS.PROGRESS.DUP_REQUESTS:
+      console.log('Request is Duplicated : ', err);
+      res.status(400).send({ error: 'Duplicate Requests..' });
+      break;
+    case ERRORS.PROGRESS.INVALID_REQUESTS:
+      console.log('Request is invalid : ', err);
+      res.status(400).send({ error: 'invalid Requests..' });
+      break;
     default:
       console.log('UNHANDLED INTERNAL ERROR: ', err);
       res.status(500).send({ error: 'INTERNAL ERROR' });
